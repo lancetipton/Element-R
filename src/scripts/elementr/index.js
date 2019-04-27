@@ -93,7 +93,9 @@ const mapProps = (el, props) => (
 
       if(prop === 'for') prop = 'htmlFor'
       if(prop === 'class') prop = 'className'
-
+      if(prop.indexOf('on') === 0) prop = prop.toLowerCase()
+      
+      
       if (!(prop in el) && !ATTR_EXCEPTIONS.includes(prop))
         return null
 
@@ -102,6 +104,7 @@ const mapProps = (el, props) => (
           return setStyles(el, value)
         case 'dataset':
           return setDataAttributes(el, value)
+        case 'htmlFor':
         case 'className':
           return (el[prop] = value)
         default:
@@ -147,7 +150,7 @@ const makeEl = type => (
     : document.createElement(type)
 )
 
-export const domTree = (type, props, ...children) => {
+const eR = (type, props, ...children) => {
   const el = makeEl(type)
 
   const propsType = typeof props
@@ -159,53 +162,45 @@ export const domTree = (type, props, ...children) => {
 
   return el
 }
-export const a = (...args) => domTree(`a`, ...args)
-export const button = (...args) => domTree(`button`, ...args)
-export const div = (...args) => domTree(`div`, ...args)
-export const h1 = (...args) => domTree(`h1`, ...args)
-export const h2 = (...args) => domTree(`h2`, ...args)
-export const h3 = (...args) => domTree(`h3`, ...args)
-export const h4 = (...args) => domTree(`h4`, ...args)
-export const h5 = (...args) => domTree(`h5`, ...args)
-export const h6 = (...args) => domTree(`h6`, ...args)
-export const header = (...args) => domTree(`header`, ...args)
-export const nav = (...args) => domTree(`nav`, ...args)
-export const footer = (...args) => domTree(`footer`, ...args)
-export const p = (...args) => domTree(`p`, ...args)
-export const span = (...args) => domTree(`span`, ...args)
-export const br = (...args) => domTree(`br`, ...args)
-export const i = (...args) => domTree(`i`, ...args)
-export const ol = (...args) => domTree(`ol`, ...args)
-export const ul = (...args) => domTree(`ul`, ...args)
-export const li = (...args) => domTree(`li`, ...args)
-export const svg = (...args) => domTree('svg', ...args)
-export const path = (...args) => domTree(`path`, ...args)
-export const circle = (...args) => domTree(`circle`, ...args)
-export const style = (...args) => domTree(`style`, ...args)
 
-export default {
-  domTree,
-  a,
-  button,
-  div,
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  header,
-  nav,
-  footer,
-  p,
-  span,
-  br,
-  i,
-  ol,
-  ul,
-  li,
-  svg,
-  path,
-  circle,
-  style,
+const elements = [
+  'a',
+  'b',
+  'br',
+  'button',
+  'circle',
+  'footer',
+  'form',
+  'div',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'header',
+  'i',
+  'input',
+  'label',
+  'link',
+  'li',
+  'nav',
+  'ol',
+  'option',
+  'p',
+  'path',
+  'select',
+  'span',
+  'style',
+  'svg',
+  'textarea',
+  'u',
+  'ul',
+].reduce((els, type) => (
+  (els[type] = (...args) => eR(type, ...args)) && els
+), {})
+
+export {
+  elements,
+  eR
 }

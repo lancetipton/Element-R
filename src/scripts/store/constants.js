@@ -5,13 +5,13 @@ const arr2Obj = acts => (
   ), {})
 )
 
-const add = actions => {
-  if(typeof actions !== 'object')
+const add = consts => {
+  if(typeof consts !== 'object')
     console.warn(`add method requires an object or array as it's only param`)
 
   _CONSTANTS = Object.freeze({
     ..._CONSTANTS,
-    ...(Array.isArray(actions) ? arr2Obj(actions) : actions)
+    ...(Array.isArray(consts) ? arr2Obj(consts) : consts)
   })
   
   return _CONSTANTS
@@ -19,7 +19,7 @@ const add = actions => {
 
 const get = () => _CONSTANTS
 
-const constants = {
+export default {
   add,
   get
 }

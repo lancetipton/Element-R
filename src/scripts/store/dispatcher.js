@@ -4,15 +4,17 @@ const WATCHERS = {}
 let ON_DISPATCH
 let STATE
 const isFunc = test => typeof test === 'function'
-const destroy = () => (
+const destroy = () => {
   Object
     .entries(WATCHERS)
     .map(([id, cbs]) =>  {
       cbs && cbs.map(cb => cb && typeof cb.destroy === 'function' && cb.destroy(id))
-      WATCHERS[watcher] = undefined
-      delete WATCHERS[watcher]
+      WATCHERS[id] = undefined
+      delete WATCHERS[id]
     })
-)
+  ON_DISPATCH = undefined
+  STATE = undefined
+}
 const dispatch = (id, ...payload) => {
   if(!ON_DISPATCH)
     return console.warn(`You must create a store before you can dispatch to it`)
@@ -29,8 +31,8 @@ const create = (onDispatch, state) => {
     
   if(!onDispatch || !isFunc(onDispatch))
     return console.warn(`dispatcher.create requires an 'onDispatch' method`)
-  if(!state || typeof store !== 'object')
-    return console.warn(`create requires an initial state of type 'object'`)
+  if(!state || typeof state !== 'object')
+    return console.warn(`dispatcher.create requires an initial state of type 'object'`)
 
   ON_DISPATCH = onDispatch
   STATE = cloneDeep(state)
@@ -71,6 +73,8 @@ const watch = (id, cb) => {
 }
 
 const getWatchers = () => WATCHERS
+const getState = () => STATE
+const getDispatch = () => ON_DISPATCH
 
 const forget = (id, cb) => {
   if(!id || !WATCHERS[id])
@@ -85,9 +89,10 @@ const dispatcher = {
   destroy,
   dispatch,
   forget,
+  getDispatch,
+  getState,
   getWatchers,
   watch,
   update
 }
-
 export default dispatcher

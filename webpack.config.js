@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const webpack = require('webpack')
 
-const libraryName = 'elementr'
+const libraryName = 'elementR'
 const ENV_MODE = process.env.ENV
 const outputFile = '.min.js'
 const paths = [ './build' ]
@@ -13,7 +13,8 @@ module.exports = {
   mode: ENV_MODE || 'development',
   devtool: 'inline-source-map',
   entry: {
-    [libraryName]: './src/index.js'
+    [libraryName]: './src/scripts/index.js',
+    markdown: './src/example/markdown.js'
   },
   output: {
     path: path.resolve(__dirname, './build'),
@@ -42,6 +43,12 @@ module.exports = {
     ]
   },
   plugins: [
-    new CleanWebpackPlugin(paths, {})
+    new CleanWebpackPlugin(paths, {}),
+    new CopyWebpackPlugin([
+      { from: './src/example/index.html' },
+      { from: './src/example/index.css' },
+      { from: './src/example/index.js' },
+      { from: './src/example/github.css' },
+    ])
   ],
 }

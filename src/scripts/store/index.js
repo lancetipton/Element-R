@@ -1,8 +1,8 @@
-import constants from './contants'
+import constants from './constants'
 import createStore from './store'
 import dispatcher from './dispatcher'
 
-export default {
+export {
   constants,
   createStore,
   dispatcher
