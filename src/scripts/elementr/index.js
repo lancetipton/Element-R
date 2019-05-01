@@ -13,7 +13,7 @@ const ATTR_EXCEPTIONS = [
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg"
 const PROPS_TYPES = ['string', 'number', 'object']
 const NO_EL_TYPES = ['string', 'number', 'boolean']
-
+const CLASS_NAME_TYPES = [ 'string', 'object' ]
 /**
  * Adds text to the passed in parent element
  * @param  { dom node } el - element to add text to
@@ -78,6 +78,36 @@ const setDataAttributes = (el, dataAttrs) => (
     })
 )
 
+
+const addList = (list, name) => list.indexOf(` ${name} `) === -1 && (list += ` ${name} `)
+
+/**
+ * Adds classes to the element, based on the value of the className prop 
+* @param  { dom node } el - dom node to add the classes to
+ * @param  { string } prop - name of prop should always be className
+ * @param  { string || array } value - classes to add to the element
+ * @return { void }
+ */
+const buildClassName = (el, prop, value) => {
+  const valueType = typeof value
+  if(prop !== 'className' || CLASS_NAME_TYPES.indexOf(valueType) === -1)
+    return el
+
+  if(valueType === 'string') return (el[prop] = value)
+  
+  Array.isArray(value) && (
+    value.reduce((list, name, index) => {
+      if(typeof name === 'string') addList(list, name)
+      else if (Array.isArray(name))
+        name.map(subName => ( addList(list, subName) ) )
+
+      return index === value.length -1
+        ? (el[prop] = list.trim())
+        : list
+    }, '')
+  )
+}
+
 /**
  * Maps passed in element properties to the passed in element
 * @param  { dom node } el - dom node to add the properties to
@@ -89,14 +119,16 @@ const mapProps = (el, props) => (
     .keys(props)
     .map(prop => {
       const value = props[prop]
+      let custom = false
       if(props[prop] === undefined || props[prop] === null) return
 
       if(prop === 'for') prop = 'htmlFor'
       if(prop === 'class') prop = 'className'
+      if(prop.indexOf('data-') === 0) custom = true
       if(prop.indexOf('on') === 0) prop = prop.toLowerCase()
       
       
-      if (!(prop in el) && !ATTR_EXCEPTIONS.includes(prop))
+      if (!custom && !(prop in el) && !ATTR_EXCEPTIONS.includes(prop))
         return null
 
       switch(prop){
@@ -105,12 +137,15 @@ const mapProps = (el, props) => (
         case 'dataset':
           return setDataAttributes(el, value)
         case 'htmlFor':
-        case 'className':
           return (el[prop] = value)
+        case 'className':
+          return buildClassName(el, prop, value)
         default:
-          return typeof value === `function` && prop.indexOf('on') === 0
-            ? (el[prop] = value)
-            : value && el.setAttribute(prop, value)
+          return custom
+            ? el.setAttribute(prop, value)
+            : typeof value === `function` && prop.indexOf('on') === 0
+              ? (el[prop] = value)
+              : value && el.setAttribute(prop, value)
       }
     })
 )
